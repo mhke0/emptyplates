@@ -352,5 +352,37 @@ document.addEventListener('touchstart', onTouchStart, { passive: false });
 document.addEventListener('touchmove', onTouchMove, { passive: false });
 document.addEventListener('touchend', onTouchEnd);
 
+// Loading screen
+const loadingScreen = document.getElementById('loading-screen');
+const loadingBar = document.getElementById('loading-bar');
+let loadedCount = 0;
+const totalPhotos = photos.length;
+const MIN_DISPLAY_MS = 800; // always show the screen for at least this long
+const loadStart = Date.now();
+
+function onImageProgress() {
+    loadedCount++;
+    loadingBar.style.width = `${(loadedCount / totalPhotos) * 100}%`;
+
+    if (loadedCount >= totalPhotos) {
+        const elapsed = Date.now() - loadStart;
+        const delay = Math.max(0, MIN_DISPLAY_MS - elapsed);
+        setTimeout(() => {
+            loadingScreen.classList.add('fade-out');
+            loadingScreen.addEventListener('transitionend', () => loadingScreen.remove(), { once: true });
+        }, delay);
+    }
+}
+
 // Initialize
 createPhotoElements();
+
+// Hook into the already-created img elements for load tracking
+document.querySelectorAll('.photo-item img').forEach(img => {
+    if (img.complete) {
+        onImageProgress();
+    } else {
+        img.addEventListener('load', onImageProgress, { once: true });
+        img.addEventListener('error', onImageProgress, { once: true }); // don't stall on broken images
+    }
+});
