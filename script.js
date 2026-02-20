@@ -124,8 +124,10 @@ function createPhotoElements() {
         }
 
         // Use max dimensions for grid consistency
-        const maxWidth = 280;
-        const maxHeight = 280;
+        // On mobile, photos are scaled to 0.7 via CSS, so shrink the grid cell accordingly
+        const mobileScale = isMobile ? 0.7 : 1;
+        const maxWidth = 280 * mobileScale;
+        const maxHeight = 280 * mobileScale;
 
         // Calculate base position
         const baseX = col * (maxWidth + padding) + startPadding;
@@ -136,8 +138,8 @@ function createPhotoElements() {
         const randomOffsetY = (Math.cos(index * 2.345) * 0.5 + 0.5) * 50 - 25; // -25 to +25
 
         // Center photos within their grid cell with random variation
-        const x = baseX + (maxWidth - photo.width) / 2 + randomOffsetX;
-        const y = baseY + (maxHeight - photo.height) / 2 + randomOffsetY;
+        const x = baseX + (maxWidth - photo.width * mobileScale) / 2 + randomOffsetX;
+        const y = baseY + (maxHeight - photo.height * mobileScale) / 2 + randomOffsetY;
 
         photoItem.style.width = `${photo.width}px`;
         photoItem.style.height = `${photo.height}px`;
