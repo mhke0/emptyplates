@@ -81,8 +81,10 @@ function createPhotoElements() {
         }
 
         // Custom grid layout with varying rows: 5, 6, 4, 5, 6, etc.
-        const padding = 50; // Spacing between photos
-        const startPadding = 50; // Initial offset from edges
+        // Responsive spacing - less on mobile
+        const isMobile = window.innerWidth <= 768;
+        const padding = isMobile ? 20 : 50; // Reduced spacing on mobile
+        const startPadding = isMobile ? 30 : 50; // Reduced initial offset on mobile
         // First row has fewer photos to leave space for logo (skip 2 cells)
         const rowPattern = [5, 4, 5, 6, 6]; // Photos per row - varying pattern
 
