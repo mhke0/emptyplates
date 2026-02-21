@@ -150,6 +150,7 @@ body:hover .cursor {
     height: 300vh;
     position: relative;
     will-change: transform;
+    transform-origin: 0 0;
     transition: transform 0.05s ease-out;
 }
 
@@ -238,6 +239,7 @@ body:hover .cursor {
         top: 1rem;
         right: 1rem;
     }
+
 
     .signature img {
         max-width: 60px; /* Smaller logo on mobile */

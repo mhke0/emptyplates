@@ -55,6 +55,10 @@ let currentX = -window.innerWidth * 0.1;
 let currentY = -window.innerHeight * 0.1;
 let velocityX = 0;
 let velocityY = 0;
+let currentScale = 1;
+const MIN_SCALE = 0.3;
+const MAX_SCALE = 2.5;
+const ZOOM_STEP = 0.15;
 
 // Photo dragging state
 let draggedPhoto = null;
@@ -65,8 +69,23 @@ let photoOffsetY = 0;
 const canvas = document.getElementById('canvas');
 const cursor = document.querySelector('.cursor');
 
+// Apply current pan + zoom to canvas
+function applyTransform() {
+    canvas.style.transform = `translate(${currentX}px, ${currentY}px) scale(${currentScale})`;
+}
+
+// Zoom centered on a viewport point (ox, oy)
+function zoomAt(ox, oy, delta) {
+    const newScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, currentScale + delta));
+    const ratio = newScale / currentScale;
+    currentX = ox - ratio * (ox - currentX);
+    currentY = oy - ratio * (oy - currentY);
+    currentScale = newScale;
+    applyTransform();
+}
+
 // Initialize canvas position
-canvas.style.transform = `translate(${currentX}px, ${currentY}px)`;
+applyTransform();
 
 // Debug: log when photos are created
 console.log('Portfolio initialized with', photos.length, 'photos');
@@ -105,7 +124,7 @@ function createPhotoElements() {
         const padding = isMobile ? 20 : 50; // Reduced spacing on mobile
         const startPadding = isMobile ? 30 : 50; // Reduced initial offset on mobile
         // First row has fewer photos to leave space for logo (skip 2 cells)
-        const rowPattern = [5, 4, 5, 4, 5, 6, 4, 5]; // Photos per row - varying pattern
+        const rowPattern = [5, 6, 7, 6, 7, 5, 7, 6, 7, 6, 5]; // Photos per row - varying pattern
 
         // Skip first 2 cells - shift all photos by 2 to leave more space for logo
         const adjustedIndex = index + 2;
@@ -152,9 +171,9 @@ function createPhotoElements() {
         const baseX = col * (maxWidth + padding) + startPadding;
         const baseY = row * (maxHeight + padding) + startPadding;
 
-        // Add subtle random offset for organic feel with minimal overlap
-        const randomOffsetX = (Math.sin(index * 1.234) * 0.5 + 0.5) * 50 - 25; // -25 to +25
-        const randomOffsetY = (Math.cos(index * 2.345) * 0.5 + 0.5) * 50 - 25; // -25 to +25
+        // Pseudo-random offset using multiple sine/cosine harmonics for organic scatter
+        const randomOffsetX = Math.sin(index * 1.234) * 55 + Math.sin(index * 3.71) * 25;  // ≈ ±80px
+        const randomOffsetY = Math.cos(index * 2.345) * 40 + Math.cos(index * 5.13) * 20;  // ≈ ±60px
 
         // Center photos within their grid cell with random variation
         const x = baseX + (maxWidth - photo.width * mobileScale) / 2 + randomOffsetX;
@@ -237,7 +256,7 @@ function onMouseMove(e) {
     currentX = newX;
     currentY = newY;
 
-    canvas.style.transform = `translate(${currentX}px, ${currentY}px)`;
+    applyTransform();
 }
 
 function onMouseUp() {
@@ -314,7 +333,7 @@ function onTouchMove(e) {
     currentX = newX;
     currentY = newY;
 
-    canvas.style.transform = `translate(${currentX}px, ${currentY}px)`;
+    applyTransform();
     e.preventDefault();
 }
 
@@ -349,12 +368,39 @@ function applyMomentum() {
         currentX += velocityX;
         currentY += velocityY;
 
-        canvas.style.transform = `translate(${currentX}px, ${currentY}px)`;
+        applyTransform();
         requestAnimationFrame(animate);
     }
 
     animate();
 }
+
+// Scroll to zoom (centered on cursor)
+window.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const delta = e.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP;
+    zoomAt(e.clientX, e.clientY, delta);
+}, { passive: false });
+
+// Pinch to zoom (mobile)
+let lastPinchDist = null;
+window.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 2) lastPinchDist = null;
+}, { passive: true });
+window.addEventListener('touchmove', (e) => {
+    if (e.touches.length !== 2) return;
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    const dist = Math.hypot(dx, dy);
+    if (lastPinchDist !== null) {
+        const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        zoomAt(midX, midY, (dist - lastPinchDist) * 0.01);
+    }
+    lastPinchDist = dist;
+}, { passive: true });
+window.addEventListener('touchend', () => { lastPinchDist = null; });
+
 
 // Prevent context menu on long press (mobile)
 window.addEventListener('contextmenu', (e) => {
