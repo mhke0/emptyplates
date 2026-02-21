@@ -181,6 +181,12 @@ body:hover .cursor {
     cursor: grabbing;
 }
 
+.photo-item.long-press-active {
+    transition: transform 0.4s ease-out !important;
+    transform: scale(1.05);
+    z-index: 10;
+}
+
 .photo-item img {
     display: block;
     width: 100%;

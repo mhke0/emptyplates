@@ -124,7 +124,7 @@ function createPhotoElements() {
         const padding = isMobile ? 20 : 50; // Reduced spacing on mobile
         const startPadding = isMobile ? 30 : 50; // Reduced initial offset on mobile
         // First row has fewer photos to leave space for logo (skip 2 cells)
-        const rowPattern = [5, 6, 7, 6, 7, 5, 7, 6, 7, 6, 5]; // Photos per row - varying pattern
+        const rowPattern = [5, 6, 7, 6, 7, 8, 7, 6, 7]; // Photos per row - varying pattern
 
         // Skip first 2 cells - shift all photos by 2 to leave more space for logo
         const adjustedIndex = index + 2;
@@ -275,9 +275,28 @@ function onMouseUp() {
 }
 
 // Touch events for mobile
+let longPressTimer = null;
+let longPressTarget = null;
+const LONG_PRESS_MS = 400;
+const LONG_PRESS_MOVE_THRESHOLD = 8; // px — cancel long press if finger moves this far
+let touchStartX = 0;
+let touchStartY = 0;
+
+function cancelLongPress() {
+    if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+    }
+    if (longPressTarget) {
+        longPressTarget.classList.remove('long-press-active');
+        longPressTarget = null;
+    }
+}
+
 function onTouchStart(e) {
     // Two fingers — switch to pinch mode, cancel any ongoing drag
     if (e.touches.length === 2) {
+        cancelLongPress();
         isPinching = true;
         isDraggingCanvas = false;
         isDraggingPhoto = false;
@@ -289,24 +308,34 @@ function onTouchStart(e) {
     }
 
     const touch = e.touches[0];
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
 
-    // Check if touching a photo
-    if (e.target.closest('.photo-item')) {
-        const photoItem = e.target.closest('.photo-item');
-        isDraggingPhoto = true;
-        draggedPhoto = photoItem;
+    // If touching a photo, start a long-press timer — don't drag the photo immediately
+    const photoItem = e.target.closest('.photo-item');
+    if (photoItem) {
+        longPressTarget = photoItem;
+        photoItem.classList.add('long-press-active');
 
-        const canvasRect = canvas.getBoundingClientRect();
-        photoOffsetX = (touch.clientX - canvasRect.left) / currentScale - parseFloat(photoItem.style.left);
-        photoOffsetY = (touch.clientY - canvasRect.top) / currentScale - parseFloat(photoItem.style.top);
+        longPressTimer = setTimeout(() => {
+            longPressTimer = null;
+            // Activate photo drag
+            isDraggingCanvas = false;
+            isDraggingPhoto = true;
+            draggedPhoto = photoItem;
 
-        photoItem.style.transition = 'none';
-        photoItem.style.zIndex = '1000';
-        e.preventDefault();
-        return;
+            const canvasRect = canvas.getBoundingClientRect();
+            const currentTouch = longPressTarget._currentTouch || touch;
+            photoOffsetX = (currentTouch.clientX - canvasRect.left) / currentScale - parseFloat(photoItem.style.left);
+            photoOffsetY = (currentTouch.clientY - canvasRect.top) / currentScale - parseFloat(photoItem.style.top);
+
+            photoItem.classList.remove('long-press-active');
+            photoItem.style.transition = 'none';
+            photoItem.style.zIndex = '1000';
+        }, LONG_PRESS_MS);
     }
 
-    // Otherwise, drag canvas
+    // Always start canvas drag — will be cancelled if long press activates
     isDraggingCanvas = true;
     startX = touch.clientX - currentX;
     startY = touch.clientY - currentY;
@@ -333,8 +362,21 @@ function onTouchMove(e) {
 
     const touch = e.touches[0];
 
-    // Handle photo dragging
+    // Track current touch position for long press offset calculation
+    if (longPressTarget) longPressTarget._currentTouch = touch;
+
+    // Cancel long press if finger moved too far
+    if (longPressTimer) {
+        const dx = touch.clientX - touchStartX;
+        const dy = touch.clientY - touchStartY;
+        if (Math.hypot(dx, dy) > LONG_PRESS_MOVE_THRESHOLD) {
+            cancelLongPress();
+        }
+    }
+
+    // Handle photo dragging (activated by long press)
     if (isDraggingPhoto && draggedPhoto) {
+        isDraggingCanvas = false;
         const canvasRect = canvas.getBoundingClientRect();
         const newLeft = (touch.clientX - canvasRect.left) / currentScale - photoOffsetX;
         const newTop = (touch.clientY - canvasRect.top) / currentScale - photoOffsetY;
@@ -362,6 +404,8 @@ function onTouchMove(e) {
 }
 
 function onTouchEnd(e) {
+    cancelLongPress();
+
     // Leaving pinch (one finger lifted)
     if (isPinching) {
         if (e.touches.length < 2) {
