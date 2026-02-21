@@ -105,7 +105,7 @@ function createPhotoElements() {
         const padding = isMobile ? 20 : 50; // Reduced spacing on mobile
         const startPadding = isMobile ? 30 : 50; // Reduced initial offset on mobile
         // First row has fewer photos to leave space for logo (skip 2 cells)
-        const rowPattern = [5, 4, 5, 6, 6]; // Photos per row - varying pattern
+        const rowPattern = [5, 4, 5, 4, 5, 6, 4, 5]; // Photos per row - varying pattern
 
         // Skip first 2 cells - shift all photos by 2 to leave more space for logo
         const adjustedIndex = index + 2;
