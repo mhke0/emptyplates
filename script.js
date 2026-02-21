@@ -279,6 +279,18 @@ function onMouseUp() {
 
 // Touch events for mobile
 function onTouchStart(e) {
+    // Two fingers — switch to pinch mode, cancel any ongoing drag
+    if (e.touches.length === 2) {
+        isPinching = true;
+        isDraggingCanvas = false;
+        isDraggingPhoto = false;
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        lastPinchDist = Math.hypot(dx, dy);
+        e.preventDefault();
+        return;
+    }
+
     const touch = e.touches[0];
 
     // Check if touching a photo
@@ -307,6 +319,21 @@ function onTouchStart(e) {
 }
 
 function onTouchMove(e) {
+    // Handle pinch zoom
+    if (isPinching && e.touches.length === 2) {
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const dist = Math.hypot(dx, dy);
+        if (lastPinchDist !== null) {
+            const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+            const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+            zoomAt(midX, midY, (dist - lastPinchDist) * 0.01);
+        }
+        lastPinchDist = dist;
+        e.preventDefault();
+        return;
+    }
+
     const touch = e.touches[0];
 
     // Handle photo dragging
@@ -337,7 +364,16 @@ function onTouchMove(e) {
     e.preventDefault();
 }
 
-function onTouchEnd() {
+function onTouchEnd(e) {
+    // Leaving pinch (one finger lifted)
+    if (isPinching) {
+        if (e.touches.length < 2) {
+            isPinching = false;
+            lastPinchDist = null;
+        }
+        return;
+    }
+
     // Reset photo dragging
     if (isDraggingPhoto && draggedPhoto) {
         draggedPhoto.style.transition = '';
@@ -382,24 +418,9 @@ window.addEventListener('wheel', (e) => {
     zoomAt(e.clientX, e.clientY, delta);
 }, { passive: false });
 
-// Pinch to zoom (mobile)
+// Pinch to zoom (mobile) — handled inside onTouchStart/Move/End
 let lastPinchDist = null;
-window.addEventListener('touchstart', (e) => {
-    if (e.touches.length === 2) lastPinchDist = null;
-}, { passive: true });
-window.addEventListener('touchmove', (e) => {
-    if (e.touches.length !== 2) return;
-    const dx = e.touches[0].clientX - e.touches[1].clientX;
-    const dy = e.touches[0].clientY - e.touches[1].clientY;
-    const dist = Math.hypot(dx, dy);
-    if (lastPinchDist !== null) {
-        const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
-        const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-        zoomAt(midX, midY, (dist - lastPinchDist) * 0.01);
-    }
-    lastPinchDist = dist;
-}, { passive: true });
-window.addEventListener('touchend', () => { lastPinchDist = null; });
+let isPinching = false;
 
 
 // Prevent context menu on long press (mobile)
