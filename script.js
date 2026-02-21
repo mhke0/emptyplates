@@ -201,13 +201,10 @@ function onPhotoMouseDown(e) {
     isDraggingPhoto = true;
     draggedPhoto = e.currentTarget;
 
-    // Get current photo position
-    const rect = draggedPhoto.getBoundingClientRect();
+    // Calculate offset in canvas-space (divide screen pixels by scale)
     const canvasRect = canvas.getBoundingClientRect();
-
-    // Calculate offset from mouse to photo's top-left corner
-    photoOffsetX = e.clientX - rect.left;
-    photoOffsetY = e.clientY - rect.top;
+    photoOffsetX = (e.clientX - canvasRect.left) / currentScale - parseFloat(draggedPhoto.style.left);
+    photoOffsetY = (e.clientY - canvasRect.top) / currentScale - parseFloat(draggedPhoto.style.top);
 
     draggedPhoto.style.transition = 'none'; // Disable transition during drag
     draggedPhoto.style.zIndex = '1000'; // Bring to front
@@ -234,10 +231,10 @@ function onMouseMove(e) {
 
     // Handle photo dragging
     if (isDraggingPhoto && draggedPhoto) {
-        // Calculate new position relative to canvas
+        // Convert screen-space mouse position to canvas-space by dividing by currentScale
         const canvasRect = canvas.getBoundingClientRect();
-        const newLeft = e.clientX - canvasRect.left - photoOffsetX;
-        const newTop = e.clientY - canvasRect.top - photoOffsetY;
+        const newLeft = (e.clientX - canvasRect.left) / currentScale - photoOffsetX;
+        const newTop = (e.clientY - canvasRect.top) / currentScale - photoOffsetY;
 
         draggedPhoto.style.left = `${newLeft}px`;
         draggedPhoto.style.top = `${newTop}px`;
@@ -299,9 +296,9 @@ function onTouchStart(e) {
         isDraggingPhoto = true;
         draggedPhoto = photoItem;
 
-        const rect = photoItem.getBoundingClientRect();
-        photoOffsetX = touch.clientX - rect.left;
-        photoOffsetY = touch.clientY - rect.top;
+        const canvasRect = canvas.getBoundingClientRect();
+        photoOffsetX = (touch.clientX - canvasRect.left) / currentScale - parseFloat(photoItem.style.left);
+        photoOffsetY = (touch.clientY - canvasRect.top) / currentScale - parseFloat(photoItem.style.top);
 
         photoItem.style.transition = 'none';
         photoItem.style.zIndex = '1000';
@@ -339,8 +336,8 @@ function onTouchMove(e) {
     // Handle photo dragging
     if (isDraggingPhoto && draggedPhoto) {
         const canvasRect = canvas.getBoundingClientRect();
-        const newLeft = touch.clientX - canvasRect.left - photoOffsetX;
-        const newTop = touch.clientY - canvasRect.top - photoOffsetY;
+        const newLeft = (touch.clientX - canvasRect.left) / currentScale - photoOffsetX;
+        const newTop = (touch.clientY - canvasRect.top) / currentScale - photoOffsetY;
 
         draggedPhoto.style.left = `${newLeft}px`;
         draggedPhoto.style.top = `${newTop}px`;
