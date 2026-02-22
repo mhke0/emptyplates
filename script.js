@@ -464,6 +464,14 @@ let lastPinchDist = null;
 let isPinching = false;
 
 
+// Prevent canvas touch handlers from swallowing taps on the footer nav links
+document.querySelector('.footer-links').addEventListener('touchstart', (e) => {
+    e.stopPropagation();
+}, { passive: true });
+document.querySelector('.footer-links').addEventListener('touchend', (e) => {
+    e.stopPropagation();
+}, { passive: true });
+
 // Prevent context menu on long press (mobile)
 window.addEventListener('contextmenu', (e) => {
     if (e.target.closest('.canvas')) {
@@ -503,8 +511,10 @@ function setupPanel(openId, panelId) {
         document.body.classList.remove('panel-open');
     };
 
-    // Desktop: click anywhere on panel to close
-    panel.addEventListener('click', close);
+    // Desktop: click anywhere on panel to close (but not on links)
+    panel.addEventListener('click', (e) => {
+        if (!e.target.closest('a')) close();
+    });
 
     // Mobile: swipe left to close
     let swipeStartX = 0;
