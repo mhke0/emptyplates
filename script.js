@@ -55,7 +55,7 @@ let currentX = -window.innerWidth * 0.1;
 let currentY = -window.innerHeight * 0.1;
 let velocityX = 0;
 let velocityY = 0;
-let currentScale = 1;
+let currentScale = 0.8;
 const MIN_SCALE = 0.3;
 const MAX_SCALE = 2.5;
 const ZOOM_STEP = 0.15;
@@ -121,7 +121,7 @@ function createPhotoElements() {
         // Custom grid layout with varying rows: 5, 6, 4, 5, 6, etc.
         // Responsive spacing - less on mobile
         const isMobile = window.innerWidth <= 768;
-        const padding = isMobile ? 20 : 50; // Reduced spacing on mobile
+        const padding = isMobile ? 20 : 80; // Reduced spacing on mobile
         const startPadding = isMobile ? 30 : 50; // Reduced initial offset on mobile
         // First row has fewer photos to leave space for logo (skip 2 cells)
         const rowPattern = [5, 6, 7, 6, 7, 8, 7, 6, 7]; // Photos per row - varying pattern

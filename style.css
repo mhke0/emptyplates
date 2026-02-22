@@ -135,13 +135,13 @@ body:hover .cursor {
 .signature {
     position: fixed;
     top: 2rem;
-    left: 3rem;
+    left: 2rem;
     z-index: 100;
     pointer-events: none;
 }
 
 .signature img {
-    max-width: 150px;
+    max-width: 120px;
     height: auto;
     display: block;
     opacity: 0.9;
@@ -199,7 +199,7 @@ body:hover .cursor {
 /* Photo captions */
 .photo-caption {
     position: absolute;
-    bottom: -15px;
+    bottom: -17px;
     right: 0;
     font-size: 0.65rem;
     color: var(--text-color);
