@@ -516,7 +516,7 @@ function setupPanel(openId, panelId) {
         if (!e.target.closest('a')) close();
     });
 
-    // Mobile: swipe left to close
+    // Mobile: swipe left or tap to close (but not on links)
     let swipeStartX = 0;
     let swipeStartY = 0;
     panel.addEventListener('touchstart', (e) => {
@@ -524,9 +524,12 @@ function setupPanel(openId, panelId) {
         swipeStartY = e.touches[0].clientY;
     }, { passive: true });
     panel.addEventListener('touchend', (e) => {
+        if (e.target.closest('a')) return;
         const dx = e.changedTouches[0].clientX - swipeStartX;
         const dy = Math.abs(e.changedTouches[0].clientY - swipeStartY);
-        if (dx < -50 && dy < 60) close();
+        const isTap = Math.abs(dx) < 10 && dy < 10;
+        const isSwipeLeft = dx < -50 && dy < 60;
+        if (isTap || isSwipeLeft) close();
     }, { passive: true });
 }
 setupPanel('open-about', 'panel-about');
