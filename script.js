@@ -481,6 +481,47 @@ document.addEventListener('touchstart', onTouchStart, { passive: false });
 document.addEventListener('touchmove', onTouchMove, { passive: false });
 document.addEventListener('touchend', onTouchEnd);
 
+// Panel text cursor
+const panelCursor = document.getElementById('panel-cursor');
+document.addEventListener('mousemove', (e) => {
+    panelCursor.style.left = `${e.clientX}px`;
+    panelCursor.style.top = `${e.clientY}px`;
+});
+
+// Slide-in panels
+function setupPanel(openId, panelId) {
+    const panel = document.getElementById(panelId);
+
+    document.getElementById(openId).addEventListener('click', (e) => {
+        e.preventDefault();
+        panel.classList.add('open');
+        document.body.classList.add('panel-open');
+    });
+
+    const close = () => {
+        panel.classList.remove('open');
+        document.body.classList.remove('panel-open');
+    };
+
+    // Desktop: click anywhere on panel to close
+    panel.addEventListener('click', close);
+
+    // Mobile: swipe left to close
+    let swipeStartX = 0;
+    let swipeStartY = 0;
+    panel.addEventListener('touchstart', (e) => {
+        swipeStartX = e.touches[0].clientX;
+        swipeStartY = e.touches[0].clientY;
+    }, { passive: true });
+    panel.addEventListener('touchend', (e) => {
+        const dx = e.changedTouches[0].clientX - swipeStartX;
+        const dy = Math.abs(e.changedTouches[0].clientY - swipeStartY);
+        if (dx < -50 && dy < 60) close();
+    }, { passive: true });
+}
+setupPanel('open-about', 'panel-about');
+setupPanel('open-impressum', 'panel-impressum');
+
 // Loading screen
 const loadingScreen = document.getElementById('loading-screen');
 const loadingBar = document.getElementById('loading-bar');

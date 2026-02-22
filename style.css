@@ -51,6 +51,118 @@
     margin-top: -1rem;
 }
 
+/* Footer links — sits beneath the logo */
+.footer-links {
+    display: flex;
+    align-items: left;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+    pointer-events: auto;
+}
+
+.footer-links a,
+.footer-links span {
+    font-size: 0.6rem;
+    color: var(--accent-color);
+    letter-spacing: 0.04em;
+    font-weight: 400;
+    text-decoration: none;
+    opacity: 0.55;
+}
+
+.footer-links a:hover {
+    opacity: 1;
+}
+
+/* Slide-in panel */
+.panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 320px;
+    height: 100vh;
+    background-color: var(--bg-color);
+    z-index: 1000;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(-100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.panel.open {
+    transform: translateX(0);
+    cursor: none;
+}
+
+body.panel-open .cursor {
+    display: none;
+}
+
+.panel-cursor {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 300;
+    letter-spacing: 0.08em;
+    color: var(--text-color);
+    opacity: 0;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.2s;
+    white-space: nowrap;
+}
+
+body.panel-open .panel-cursor {
+    opacity: 0.7;
+}
+
+.panel-content {
+    margin-top: 4rem;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.panel-content h2 {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+    opacity: 0.5;
+}
+
+.panel-content p,
+.panel-content address {
+    font-size: 0.8rem;
+    line-height: 1.7;
+    color: var(--text-color);
+    opacity: 0.75;
+    font-style: normal;
+    font-weight: 300;
+}
+
+.panel-content a {
+    color: var(--text-color);
+    opacity: 0.75;
+}
+
+.panel-content a:hover {
+    opacity: 1;
+}
+
+.panel-content + .panel-content {
+    margin-top: 2.5rem;
+}
+
+@media (max-width: 768px) {
+    .panel {
+        width: 100vw;
+    }
+}
+
 /* Contribute button */
 .contribute-wrap {
     position: fixed;
@@ -138,10 +250,17 @@ body:hover .cursor {
     left: 2rem;
     z-index: 100;
     pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.signature .footer-links {
+    pointer-events: auto;
 }
 
 .signature img {
-    max-width: 120px;
+    width: 150px;
     height: auto;
     display: block;
     opacity: 0.9;
@@ -258,7 +377,7 @@ body:hover .cursor {
 
 
     .signature img {
-        max-width: 60px; /* Smaller logo on mobile */
+        width: 60px;
     }
 
     .cursor {
