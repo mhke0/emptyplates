@@ -557,6 +557,26 @@ function onImageProgress() {
     }
 }
 
+// Build mailto links client-side to prevent email harvesting by bots
+(function () {
+    const u = 'mail';
+    const d = ['emptyplates', 'de'].join('.');
+    const addr = u + '@' + d;
+
+    document.getElementById('contact-link').addEventListener('click', function (e) {
+        e.preventDefault();
+        window.location.href = 'mailto:' + addr;
+    });
+
+    document.querySelectorAll('.impressum-mail').forEach(function (el) {
+        el.addEventListener('click', function (e) {
+            e.preventDefault();
+            window.location.href = 'mailto:' + addr;
+        });
+        el.textContent = addr;
+    });
+})();
+
 // Initialize
 createPhotoElements();
 
