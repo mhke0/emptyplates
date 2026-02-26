@@ -38,8 +38,12 @@ const photos = [
     { url: 'images/2022-copenhagen-02.jpg',         width: 210, height: 280, year: '2022', location: 'Copenhagen' },
     { url: 'images/2024-heraklion-02.jpg',          width: 210, height: 280, year: '2024', location: 'Heraklion' },
     { url: 'images/2023-copenhagen-02.jpg',         width: 210, height: 280, year: '2023', location: 'Copenhagen' },
+    { url: 'images/2023-copenhagen-04.jpg',         width: 210, height: 280, year: '2023', location: 'Copenhagen' },
     { url: 'images/2025-fujikawaguchiko-01.jpg',    width: 210, height: 280, year: '2025', location: 'Fujikawaguchiko' },
+    { url: 'images/2025-bolzano-01.jpg',            width: 210, height: 280, year: '2025', location: 'Bolzano' },
     { url: 'images/2023-marseille-01.jpg',          width: 210, height: 280, year: '2023', location: 'Marseille' },
+    { url: 'images/2023-riedenburg-01.jpg',         width: 210, height: 280, year: '2023', location: 'Riedenburg' },
+    { url: 'images/2022-bolzano-01.jpg',            width: 210, height: 280, year: '2022', location: 'Bolzano' },
 
 ];
 
